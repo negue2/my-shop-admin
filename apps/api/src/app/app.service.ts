@@ -64,8 +64,6 @@ export class AppService {
 
     const response = await fetch(apiUrl, fetchRequestPayload);
 
-    console.info(await response.text());
-
     const responseBody: any = await response.json();
 
     console.info(JSON.stringify(
