@@ -10,8 +10,10 @@ import { LoginFormComponent } from './login-form/login-form.component';
 
 import { ClrInputModule, ClrPasswordModule } from '@clr/angular';
 import { FormsModule } from '@angular/forms';
-import { FacilitySelectionComponent } from './facility-selection/facility-selection.component';
 import { ContextService } from './context.service';
+import { CommonModule } from '@angular/common';
+import { PickjobSelectionComponent } from './pickjob-selection/pickjob-selection.component';
+import { PickjobDetailComponent } from './pickjob-detail/pickjob-detail.component';
 
 const ROOT_ROUTES: Routes = [
   {
@@ -19,8 +21,12 @@ const ROOT_ROUTES: Routes = [
     component: LoginFormComponent,
   },
   {
-    path: 'facility-selection',
-    component: FacilitySelectionComponent
+    path: 'pickjobs',
+    component: PickjobSelectionComponent,
+  },
+  {
+    path: 'pickjobs/:pickjobId',
+    component: PickjobDetailComponent,
   },
   {
     path: 'nx-welcome',
@@ -37,11 +43,13 @@ const ROOT_ROUTES: Routes = [
     AppComponent,
     NxWelcomeComponent,
     LoginFormComponent,
-    FacilitySelectionComponent,
+    PickjobSelectionComponent,
+    PickjobDetailComponent,
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
+    CommonModule,
     RouterModule.forRoot(ROOT_ROUTES),
     ClrInputModule,
     ClrPasswordModule,

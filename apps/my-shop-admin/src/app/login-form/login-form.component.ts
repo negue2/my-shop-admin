@@ -31,7 +31,7 @@ export class LoginFormComponent implements OnInit {
       filter(result => result != null)
     ));
 
-    this.router.navigate(['/facility-selection']);
+    this.router.navigate(['/pickjobs']);
   }
 
 

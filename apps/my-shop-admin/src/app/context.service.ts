@@ -1,13 +1,13 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, firstValueFrom, take, filter } from 'rxjs';
-import { LoginResultDto } from "@my-shop-admin/api-interfaces";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, filter, firstValueFrom, take } from 'rxjs';
+import { LoginResultDto } from '@my-shop-admin/api-interfaces';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class ContextService {
-  static CURRENT_SESSION_KEY  = 'currentSession';
+  static CURRENT_SESSION_KEY = 'currentSession';
 
-  public currentUser$ = new BehaviorSubject<LoginResultDto|null>(null);
+  public currentUser$ = new BehaviorSubject<LoginResultDto | null>(null);
 
   constructor (
     private httpClient: HttpClient
@@ -15,7 +15,7 @@ export class ContextService {
 
   }
 
-  waitTillLoggedIn() {
+  waitTillLoggedIn () {
     return firstValueFrom(this.currentUser$.pipe(
       filter(user => user != null)
     ))
@@ -38,7 +38,7 @@ export class ContextService {
     sessionStorage.setItem('currentSession', JSON.stringify(loginResult));
   }
 
-  async getDataFromApiAsync<TResult>(
+  async getDataFromApiAsync<TResult> (
     path: string
   ): Promise<TResult> {
     const loginResult = await firstValueFrom(this.currentUser$);
@@ -49,11 +49,37 @@ export class ContextService {
 
     const headers: {
       [header: string]: string | string[];
-  } = {
-    "Authorization": loginResult.idToken
-  };
+    } = {
+      "Authorization": loginResult.idToken
+    };
 
     return firstValueFrom(this.httpClient.get<TResult>(path, {
+      responseType: 'json',
+      headers,
+    }).pipe(
+      take(1)
+    ))
+  }
+
+   async postDataToApiAsync<TResult> (
+    path: string,
+    body?: unknown
+  ): Promise<TResult> {
+    const loginResult = await firstValueFrom(this.currentUser$);
+
+    if (loginResult == null || loginResult.idToken == null) {
+      throw new Error('not logged in');
+    }
+
+    const headers: {
+      [header: string]: string | string[];
+    } = {
+      "Authorization": loginResult.idToken,
+      'Content-Type': 'application/json'
+
+    };
+
+    return firstValueFrom(this.httpClient.post<TResult>(path,  body,{
       responseType: 'json',
       headers
     }).pipe(

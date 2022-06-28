@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { HEADER_AUTHORIZATION, Message } from '@my-shop-admin/api-interfaces';
+import { HEADER_AUTHORIZATION } from '@my-shop-admin/api-interfaces';
 import fetch from 'node-fetch';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
 @Injectable()
 export class AppService {
-
   private baseUrl = this.configService.get('API_BASE_URL');
 
   constructor(private configService: ConfigService) {
@@ -35,7 +34,7 @@ export class AppService {
   async sendRequest<TResult>(
     path: string,
     authToken: string,  // optimierung dies anhand einer Middelware bekommen/nutzen
-    method: string = 'get',
+    method = 'get',
     body?: unknown
   ): Promise<TResult> {
 
@@ -57,19 +56,19 @@ export class AppService {
 
     const apiUrl = `${this.baseUrl}/${path}`;
 
-    console.info({
-      apiUrl,
-      fetchRequestPayload
-    });
-
     const response = await fetch(apiUrl, fetchRequestPayload);
 
-    const responseBody: any = await response.json();
+    if (response.ok) {
+      const responseBody: any = await response.json();
 
-    console.info(JSON.stringify(
-      responseBody
-    ));
+      console.info(JSON.stringify(
+        responseBody
+      ));
 
-    return responseBody;
+      return responseBody;
+    } else {
+      const textResponse = await response.text();
+      throw new Error(`Error requesting: ${path} - ${textResponse}`);
+    }
   }
 }

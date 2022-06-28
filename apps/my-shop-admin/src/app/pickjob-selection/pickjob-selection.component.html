@@ -10,6 +10,10 @@
   </div>
 </header>
 
-<h2>Facilities</h2>
+<h2>Available Pick-Jobs</h2>
 
-{{facilitiesAsync|async|json}}
+<a [routerLink]="['/pickjobs', pickjob.id]" class="pickjob-block"
+   *ngFor="let pickjob of pickJobsAsync | async">
+  {{pickjob | json}}
+</a>
+

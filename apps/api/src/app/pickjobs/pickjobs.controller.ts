@@ -1,7 +1,18 @@
-import { HEADER_AUTHORIZATION, PickJobDto } from '@my-shop-admin/api-interfaces';
-import { Controller, Get, Param, Req } from '@nestjs/common';
+import { FacilityDto, PickJobDto } from '@my-shop-admin/api-interfaces';
+import { Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { AppService } from '../app.service';
 import { Request } from 'express';
+
+interface FacilitiesResult {
+  facilities: FacilityDto[]
+  total: number;
+}
+
+interface PickjobsResult {
+  pickjobs: PickJobDto[]
+  total: number;
+}
+
 
 @Controller('pickjobs')
 export class PickjobsController {
@@ -18,17 +29,9 @@ export class PickjobsController {
     // todo middleware / oder ähnliches damit es automatisch zum Controller Construktor kommt
     const authorization = this.appService.getAuthorizationKey(req);
 
-console.info({
-  authorization
-});
+    const response = await this.appService.sendRequest<FacilitiesResult>('api/facilities?size=150', authorization);
 
-    const response = await this.appService.sendRequest('api/facilities', authorization);
-
-    console.info(JSON.stringify(
-      response
-    ));
-
-    return response;
+    return response.facilities.filter(facility => facility.status === 'ONLINE');
   }
 
   @Get('list-pickjobs')
@@ -37,13 +40,9 @@ console.info({
   ) {
     const authorization = this.appService.getAuthorizationKey(req);
 
-    const response = await this.appService.sendRequest('/api/pickjobs?size=25', authorization);
+    const response = await this.appService.sendRequest<PickjobsResult>('api/pickjobs?size=25', authorization);
 
-    console.info({
-      response
-    });
-
-    return response;
+    return response.pickjobs.filter(pickjob => pickjob.status === 'OPEN');
   }
 
   @Get('get-job-info/:id')
@@ -53,23 +52,20 @@ console.info({
   ) {
     const authorization = this.appService.getAuthorizationKey(req);
 
-    const response = await this.appService.sendRequest(`api/pickjobs/${id}`, authorization);
+    const response = await this.appService.sendRequest<PickJobDto>(`api/pickjobs/${id}`, authorization);
 
-    console.info({
-      response
-    });
 
     return response;
   }
 
-  @Get('start-pickjob/:id')
+  @Post('start-pickjob/:id')
   async startPickJob (
     @Req() req: Request,
     @Param('id') id: string
   ) {
     const authorization = this.appService.getAuthorizationKey(req);
 
-    const response = await this.appService.sendRequest(
+    const response = await this.appService.sendRequest<PickJobDto>(
       `api/pickjobs/${id}`,
       authorization,
       'patch', {
@@ -91,7 +87,7 @@ console.info({
   }
 
 
-  @Get('perfect-pickjob-automatic/:id')
+  @Post('perfect-pickjob-automatic/:id')
   async perfectPickJobAutomatic (
     @Req() req: Request,
     @Param('id') id: string
@@ -100,7 +96,7 @@ console.info({
 
     const pickJobInfo = await this.appService.sendRequest<PickJobDto>(`api/pickjobs/${id}`, authorization);
 
-    const response = await this.appService.sendRequest(`api/pickjobs/${id}`, authorization,
+    const response = await this.appService.sendRequest<PickJobDto>(`api/pickjobs/${id}`, authorization,
     'patch',
       {
        "version": 2,
@@ -119,10 +115,6 @@ console.info({
          })
        ]
      });
-
-    console.info({
-      response
-    });
 
     return response;
   }

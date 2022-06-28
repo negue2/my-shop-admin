@@ -1,0 +1,30 @@
+<header class="header-6">
+  <div class="branding">
+      <h3>My Shop Admin</h3>
+  </div>
+  <div class="header-nav">
+
+  </div>
+  <div class="header-actions">
+
+  </div>
+</header>
+
+<h2>Pickjob Details</h2>
+
+<button class="btn btn-primary"
+        [disabled]="!startPickJobEnabled"
+        (click)="startPickJob()">
+  Pickjob Start
+</button>
+<button class="btn btn-success"
+        [disabled]="!completePickJobEnabled"
+        (click)="completePickJob()">
+  Pickjob Completed
+</button>
+
+<br/>
+<b>Pickjob Json</b>
+<pre>
+{{pickjobDetails$| async | json }}
+</pre>
